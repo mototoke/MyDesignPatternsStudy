@@ -1,61 +1,26 @@
-FROM codercom/code-server:3.9.1
+FROM theiaide/theia-full
 
 USER root
 
-# uid
-# RUN apt-get update && apt-get -y install gosu
-# COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-# RUN chmod +x /usr/local/bin/entrypoint.sh
-# ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# Install wget
+RUN apt-get update \
+    && apt-get install -y wget
 
-# Install wget and other module
-RUN apt-get update && apt-get install -y \
-    wget \
-    git
+# Install .NET5
+ENV DOTNET_ROOT=/usr/share/dotnet
+ENV PATH=/usr/share/dotnet:/root/.dotnet/tools:$PATH
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
 
-# build nuget error temporary workaround
-# https://github.com/NuGet/Home/issues/10491#issuecomment-768450905
-RUN curl -o /usr/local/share/ca-certificates/verisign.crt -SsL https://crt.sh/?d=1039083 && update-ca-certificates
-
-# Install DotNet Package Key
-RUN wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
-    && dpkg -i packages-microsoft-prod.deb \
-    && rm packages-microsoft-prod.deb
-
-# Install Dotnet SDK
-RUN apt-get update; \
-    apt-get install -y apt-transport-https && \
-    apt-get update && \
-    apt-get install -y dotnet-sdk-5.0
-
-# Install Dotnet Runtime
-RUN apt-get update; \
-    apt-get install -y apt-transport-https && \
-    apt-get update && \
-    apt-get install -y aspnetcore-runtime-5.0
-
-# Install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
-    && apt install -y \
-    nodejs \
-    gcc \
-    g++ \
-    make \
-    && curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
-    && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
-    && apt install -y yarn
-
-# Download the Samsung Debugger
-RUN curl -sL https://github.com/Samsung/netcoredbg/releases/download/1.2.0-672/netcoredbg-linux-bionic-amd64.tar.gz | tar -zx -C /home/coder
-ENV PATH "${PATH}:/home/coder/netcoredbg"
-
-# code-server
-EXPOSE 8080
-
-# Replace 1000 with your user / group id
-ARG uid=1000
-ARG gid=1000
-
-RUN chown ${uid}:${gid} -R /home/coder/
-
-USER coder
+RUN wget -O dotnet.tar.gz https://download.visualstudio.microsoft.com/download/pr/a0487784-534a-4912-a4dd-017382083865/be16057043a8f7b6f08c902dc48dd677/dotnet-sdk-5.0.101-linux-x64.tar.gz \
+    && wget -O dotnet_runtime.tar.gz https://download.visualstudio.microsoft.com/download/pr/6bea1cea-89e8-4bf7-9fc1-f77380443db1/0fb741b7d587cce798ebee80732196ef/aspnetcore-runtime-5.0.1-linux-x64.tar.gz \
+    && dotnet_sha512='398d88099d765b8f5b920a3a2607c2d2d8a946786c1a3e51e73af1e663f0ee770b2b624a630b1bec1ceed43628ea8bc97963ba6c870d42bec064bde1cd1c9edb' \
+    && echo "$dotnet_sha512  dotnet.tar.gz" | sha512sum -c - \
+    && dotnet_runtime_sha512='fec655aed2e73288e84d940fd356b596e266a3e74c37d9006674c4f923fb7cde5eafe30b7dcb43251528166c02724df5856e7174f1a46fc33036b0f8db92688a' \
+    && echo "$dotnet_runtime_sha512  dotnet_runtime.tar.gz" | sha512sum -c - \
+    && mkdir -p "/usr/share/dotnet" \
+    && mkdir -p "/root/.dotnet/tools" \
+    && tar zxf dotnet.tar.gz -C "/usr/share/dotnet" \
+    && rm dotnet.tar.gz \
+    && tar zxf dotnet_runtime.tar.gz -C "/usr/share/dotnet" \
+    && rm dotnet_runtime.tar.gz \
+    && dotnet help

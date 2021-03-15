@@ -1,18 +1,13 @@
-version: "3"
+version: '2.2'
+
 services:
-  code:
+  eclipse-theia:
+    restart: always
     build:
       context: .
-      dockerfile: ./Dockerfile
-    restart: always
-    environment:
-      PASSWORD: password # change your password
+      dockerfile: Dockerfile
+    init: true
     ports:
-      - 53000:8080 # code-server
+      - 53000:3000
     volumes:
-      - ./src:/home/coder/project
-      - ./code-server:/home/coder/.local/share/code-server
-
-# volumes:    
-#   postgres:
-#     driver: local
+      - ./project:/home/project/:cached
