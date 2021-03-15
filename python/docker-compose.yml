@@ -4,7 +4,7 @@ services:
   eclipse-theia:
     restart: always
     container_name: theia-python
-    image: theiaide/theia-python
+    image: theiaide/theia-python:1.10.0
     init: true
     ports:
       - 51000:3000

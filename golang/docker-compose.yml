@@ -4,7 +4,7 @@ services:
   eclipse-theia:
     restart: always
     container_name: theia-go
-    image: theiaide/theia-go
+    image: theiaide/theia-go:1.10.0
     init: true
     ports:
       - 52000:3000
