@@ -1,0 +1,12 @@
+version: '2.2'
+
+services:
+  eclipse-theia:
+    restart: always
+    container_name: theia-python
+    image: theiaide/theia-python
+    init: true
+    ports:
+      - 51000:3000
+    volumes:
+      - ./project:/home/project/:cached

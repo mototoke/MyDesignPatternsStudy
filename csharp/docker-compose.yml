@@ -1,0 +1,19 @@
+version: "3"
+services:
+  code:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: code-server-csharp
+    restart: always
+    environment:
+      PASSWORD: password # change your password
+    ports:
+      - 50300:8080 # code-server
+    volumes:
+      - ./src:/home/coder/project
+      - ./code-server:/home/coder/.local/share/code-server
+
+# volumes:    
+#   postgres:
+#     driver: local

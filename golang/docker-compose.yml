@@ -1,0 +1,12 @@
+version: '2.2'
+
+services:
+  eclipse-theia:
+    restart: always
+    container_name: theia-go
+    image: theiaide/theia-go
+    init: true
+    ports:
+      - 52000:3000
+    volumes:
+      - ./project:/home/project/:cached
